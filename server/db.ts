@@ -28,7 +28,7 @@ const db = pgp({
   port: parseInt(process.env.DB_PORT || '5432'),
   database: process.env.DB_NAME || 'postgres',
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'default_password', // Replace with a default for testing
+  password: process.env.DB_PASSWORD || 'Apple986532@', // Updated with correct password
   ssl: { rejectUnauthorized: false } // Required for Supabase
 });
 
