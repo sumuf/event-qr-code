@@ -3,6 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Log the database connection details (without the password)
+console.log('Attempting to connect to database:');
+console.log(`Host: ${process.env.DB_HOST || 'not set'}`);
+console.log(`Port: ${process.env.DB_PORT || 'not set'}`);
+console.log(`Database: ${process.env.DB_NAME || 'not set'}`);
+console.log(`User: ${process.env.DB_USER || 'not set'}`);
+console.log(`SSL: Enabled`);
+
 // Database configuration
 const pgp = pgPromise({});
 
