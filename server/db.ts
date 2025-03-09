@@ -33,7 +33,7 @@ if (process.env.DATABASE_URL) {
   dbConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      rejectUnauthorized: false // Required for Supabase connections
+      rejectUnauthorized: false // This is critical for self-signed certificates
     },
     // Add connection timeout settings
     max: 30, // max number of clients in the pool
@@ -62,7 +62,7 @@ if (process.env.DATABASE_URL) {
     user,
     password,
     ssl: {
-      rejectUnauthorized: false // Required for Supabase connections
+      rejectUnauthorized: false // This is critical for self-signed certificates
     },
     // Add connection timeout settings
     max: 30,
@@ -82,10 +82,13 @@ db.any('SELECT 1')
   .catch(error => {
     console.error('Database connection test failed:', error);
     
-    // Add more detailed error logging
+    // Add more detailed error logging based on error code
     if (error.code === 'ETIMEDOUT') {
       console.error('Connection timed out. This might be due to network restrictions or firewall rules.');
       console.error('Try using the Supabase connection pooler instead of direct connection.');
+    } else if (error.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
+      console.error('SSL certificate validation error. Check your SSL configuration.');
+      console.error('Make sure rejectUnauthorized is set to false in your SSL options.');
     }
   });
 
