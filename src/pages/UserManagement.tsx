@@ -23,7 +23,7 @@ const UserManagement: React.FC = () => {
   const navigate = useNavigate();
   
   // API URL for backend services
-  const API_URL = 'http://localhost:3001/api';
+  const API_URL = 'https://event-qr-code-production.up.railway.app/api';
   
   // Fetch users from database
   useEffect(() => {
