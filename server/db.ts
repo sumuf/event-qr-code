@@ -33,7 +33,10 @@ if (process.env.DATABASE_URL) {
   dbConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      rejectUnauthorized: false // This is critical for self-signed certificates
+      rejectUnauthorized: false,
+      // Add these additional SSL options to handle self-signed certificates
+      ca: null,
+      checkServerIdentity: () => undefined
     },
     // Add connection timeout settings
     max: 30, // max number of clients in the pool
@@ -62,7 +65,10 @@ if (process.env.DATABASE_URL) {
     user,
     password,
     ssl: {
-      rejectUnauthorized: false // This is critical for self-signed certificates
+      rejectUnauthorized: false,
+      // Add these additional SSL options to handle self-signed certificates
+      ca: null,
+      checkServerIdentity: () => undefined
     },
     // Add connection timeout settings
     max: 30,
