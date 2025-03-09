@@ -541,6 +541,38 @@ app.post('/api/events', async (req, res) => {
   }
 });
 
+// Add this near your other routes
+app.get('/api/db-test', async (req, res) => {
+  try {
+    // Try a simple query that doesn't require authentication first
+    console.log('Testing database connection...');
+    const result = await db.one('SELECT NOW() as time');
+    console.log('Database test successful:', result);
+    
+    res.json({ 
+      success: true, 
+      time: result.time, 
+      message: 'Database connection successful',
+      connectionType: process.env.DATABASE_URL ? 'URL' : 'Parameters'
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    
+    // Try to extract useful information from the error
+    const errorInfo = {
+      message: error.message,
+      code: error.code,
+      detail: error.detail || 'No details available'
+    };
+    
+    res.status(500).json({ 
+      success: false, 
+      message: 'Database connection failed', 
+      error: errorInfo
+    });
+  }
+});
+
 // Add the rest of your routes here...
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

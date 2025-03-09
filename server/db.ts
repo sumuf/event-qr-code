@@ -30,14 +30,20 @@ let dbConfig;
 // Check if DATABASE_URL is provided (Railway deployment)
 if (process.env.DATABASE_URL) {
   console.log('Using DATABASE_URL for connection');
+  
+  // Parse the connection string to extract components
+  const connectionString = process.env.DATABASE_URL;
+  console.log('Connection string format check:', connectionString.substring(0, 20) + '...');
+  
   dbConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      rejectUnauthorized: false,
-      // Add these additional SSL options to handle self-signed certificates
-      ca: null,
-      checkServerIdentity: () => undefined
+      rejectUnauthorized: false
     },
+    // Remove these options as they might interfere with SASL authentication
+    // ca: null,
+    // checkServerIdentity: () => undefined
+    
     // Add connection timeout settings
     max: 30, // max number of clients in the pool
     idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
@@ -65,11 +71,12 @@ if (process.env.DATABASE_URL) {
     user,
     password,
     ssl: {
-      rejectUnauthorized: false,
-      // Add these additional SSL options to handle self-signed certificates
-      ca: null,
-      checkServerIdentity: () => undefined
+      rejectUnauthorized: false
     },
+    // Remove these options as they might interfere with SASL authentication
+    // ca: null,
+    // checkServerIdentity: () => undefined
+    
     // Add connection timeout settings
     max: 30,
     idleTimeoutMillis: 30000,
