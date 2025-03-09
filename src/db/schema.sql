@@ -1,0 +1,33 @@
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(20) NOT NULL CHECK (role IN ('organizer', 'attendee', 'staff')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Events table
+CREATE TABLE IF NOT EXISTS events (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  date TIMESTAMP WITH TIME ZONE NOT NULL,
+  venue VARCHAR(100) NOT NULL,
+  capacity INTEGER NOT NULL,
+  description TEXT,
+  organizer_id INTEGER REFERENCES users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Attendees table
+CREATE TABLE IF NOT EXISTS attendees (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  event_id INTEGER REFERENCES events(id),
+  qr_code TEXT UNIQUE NOT NULL,
+  checked_in BOOLEAN DEFAULT FALSE,
+  checked_in_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
