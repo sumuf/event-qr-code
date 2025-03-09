@@ -2,8 +2,13 @@ import pgPromise from 'pg-promise';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+// Get directory name equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Log connection attempt
 console.log('Attempting to connect to database...');
@@ -34,13 +39,23 @@ try {
   let caCert;
   try {
     // Try to read the certificate file
-    const certPath = path.resolve(__dirname, '../certs/supabase.crt');
+    const certPath = path.join(__dirname, '../certs/supabase.crt');
     console.log('Looking for certificate at:', certPath);
     caCert = fs.readFileSync(certPath).toString();
     console.log('Certificate loaded successfully');
   } catch (certError) {
     console.error('Failed to load certificate:', certError);
-    caCert = null;
+    
+    // Fallback: Try to use the certificate content directly
+    console.log('Attempting to use hardcoded certificate...');
+    try {
+      // Read from the known location in the project
+      caCert = fs.readFileSync(path.join(process.cwd(), 'certs/supabase.crt')).toString();
+      console.log('Certificate loaded from project root');
+    } catch (fallbackError) {
+      console.error('Fallback certificate loading failed:', fallbackError);
+      caCert = null;
+    }
   }
 
   // Check if DATABASE_URL is provided (Railway deployment)
