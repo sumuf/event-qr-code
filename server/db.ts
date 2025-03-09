@@ -1,5 +1,7 @@
 import pgPromise from 'pg-promise';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -28,6 +30,19 @@ const pgp = pgPromise({
 let db;
 
 try {
+  // Read the Supabase CA certificate
+  let caCert;
+  try {
+    // Try to read the certificate file
+    const certPath = path.resolve(__dirname, '../certs/supabase.crt');
+    console.log('Looking for certificate at:', certPath);
+    caCert = fs.readFileSync(certPath).toString();
+    console.log('Certificate loaded successfully');
+  } catch (certError) {
+    console.error('Failed to load certificate:', certError);
+    caCert = null;
+  }
+
   // Check if DATABASE_URL is provided (Railway deployment)
   if (process.env.DATABASE_URL) {
     console.log('Using DATABASE_URL for connection');
@@ -36,10 +51,21 @@ try {
     const connectionString = process.env.DATABASE_URL;
     console.log('Connection string format check:', connectionString.substring(0, 20) + '...');
     
-    // Try a simpler connection approach
+    // Configure SSL options based on certificate availability
+    const sslConfig = caCert 
+      ? { 
+          ca: caCert,
+          rejectUnauthorized: true  // Enforce certificate validation
+        }
+      : { 
+          rejectUnauthorized: false // Fallback if certificate is not available
+        };
+    
+    console.log('SSL configuration:', caCert ? 'Using certificate' : 'Using fallback (not recommended for production)');
+    
     const config = {
       connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
+      ssl: sslConfig
     };
     
     db = pgp(config);
@@ -58,13 +84,23 @@ try {
     console.log(`Database: ${database}`);
     console.log(`User: ${user}`);
     
+    // Configure SSL options based on certificate availability
+    const sslConfig = caCert 
+      ? { 
+          ca: caCert,
+          rejectUnauthorized: true  // Enforce certificate validation
+        }
+      : { 
+          rejectUnauthorized: false // Fallback if certificate is not available
+        };
+    
     db = pgp({
       host,
       port,
       database,
       user,
       password,
-      ssl: { rejectUnauthorized: false }
+      ssl: sslConfig
     });
   }
 
@@ -81,6 +117,7 @@ try {
         console.error('Connection timed out. This might be due to network restrictions or firewall rules.');
       } else if (error.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
         console.error('SSL certificate validation error. Check your SSL configuration.');
+        console.error('Verify that the Supabase certificate is correctly loaded.');
       } else if (error.message && error.message.includes('SASL')) {
         console.error('SASL authentication error. This might be due to incorrect credentials or connection string format.');
         console.error('Try using a different connection string format or check your credentials.');
