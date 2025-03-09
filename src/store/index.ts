@@ -30,8 +30,8 @@ interface AppState {
   deleteAttendee: (id: string) => Promise<void>;
 }
 
-// API URL for backend services
-const API_URL = 'http://localhost:3001/api';
+// API URL for backend services - UPDATED to match the URL in config/db.ts
+const API_URL = 'https://event-qr-code-production.up.railway.app/api';
 
 // Create the store
 const useAppStore = create<AppState>((set) => ({
