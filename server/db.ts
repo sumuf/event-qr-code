@@ -34,17 +34,20 @@ if (process.env.DATABASE_URL) {
     connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false // Required for Supabase connections
-    }
+    },
+    // Add connection timeout settings
+    max: 30, // max number of clients in the pool
+    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
+    connectionTimeoutMillis: 10000, // timeout before a connection attempt is abandoned
   };
 } else {
-  // Fallback to individual connection parameters
-  console.log('Using individual connection parameters');
+  // For local development, use the Transaction Pooler by default
+  console.log('Using Transaction Pooler for local development');
   
-  // Use hardcoded Supabase values as fallback
-  const host = process.env.DB_HOST || 'htaoxsultzgbahdqmxfu.supabase.co';
-  const port = parseInt(process.env.DB_PORT || '5432');
-  const database = process.env.DB_NAME || 'postgres';
-  const user = process.env.DB_USER || 'postgres';
+  const user = 'postgres.htaoxsultzgbahdqmxfu';
+  const host = 'aws-0-ap-south-1.pooler.supabase.com';
+  const port = 6543;
+  const database = 'postgres';
   const password = process.env.DB_PASSWORD;
   
   console.log(`Host: ${host}`);
@@ -59,21 +62,31 @@ if (process.env.DATABASE_URL) {
     user,
     password,
     ssl: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false // Required for Supabase connections
+    },
+    // Add connection timeout settings
+    max: 30,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   };
 }
 
 // Create database instance
 const db = pgp(dbConfig);
 
-// Test the connection
+// Test the connection with more detailed error handling
 db.any('SELECT 1')
   .then(() => {
     console.log('Database connection test successful');
   })
   .catch(error => {
     console.error('Database connection test failed:', error);
+    
+    // Add more detailed error logging
+    if (error.code === 'ETIMEDOUT') {
+      console.error('Connection timed out. This might be due to network restrictions or firewall rules.');
+      console.error('Try using the Supabase connection pooler instead of direct connection.');
+    }
   });
 
 export default db;
