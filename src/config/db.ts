@@ -1,9 +1,7 @@
 import { User } from '../types';
 
 // API URL for backend services
-
-
-const API_URL = 'http://localhost:3001/api'; // Update this with your API server URL
+const API_URL = 'https://event-qr-code-production.up.railway.app/api'; // Update with your Railway URL
 
 export const authService = {
   async login(email: string, password: string) {
